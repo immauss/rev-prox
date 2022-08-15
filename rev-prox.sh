@@ -26,6 +26,10 @@ else
 	CONFIGD=$CONFIG
 fi
 echo "Using $CONFIGD for \$CONFIGs"
+# Remove existing proxy if running
+if docker ps --all | grep -qis nginx-proxy; then
+	docker rm -f nginx-proxy
+fi
 
 
 # echo the variables as set in $CONFIG
@@ -63,9 +67,6 @@ docker run -it --rm --name certbot-setup \
 #3. destroy webserver from 1.
 docker stop nginx-server
 #4. Start reverse proxy with certs from 2
-if docker ps --all | grep -qis nginx-proxy; then
-	docker rm -f nginx-proxy
-fi
 docker run -d \
       --name nginx-proxy \
       -v $CONFIGD/nginx-rev-proxy.conf:/etc/nginx/conf.d/default.conf \
