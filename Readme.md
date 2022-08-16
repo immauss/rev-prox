@@ -16,6 +16,8 @@ Still To Do:
 - [ ] Run as interactive script to fill in config.
 - [ ] Create docker-compose fragment 
 - [ ] Generate/add cron entry to update certificate with ACME
+- [ ] Improve this ReadMe
+- [ ] Actual documentation
 - [ ] ?????
 
 
