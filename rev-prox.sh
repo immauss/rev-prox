@@ -117,6 +117,9 @@ sed "s/FQDN/$FQDN/g;s/UPSTREAM/$UPSTREAM/g;s/FWD_PORT/$FWD_PORT/;s/LISTEN_PORT/$
 if ! [ -d /etc/letsencrypt ]; then
 	mkdir -p /etc/letsencrypt
 fi
+if ! [ -d /etc/rev-prox.d ]; then
+	mkdir -p /etc/rev-prox.d
+fi
 #1. start a web server for Let's Encrypt registration
 docker run -d --rm \
 	--name nginx-server \
