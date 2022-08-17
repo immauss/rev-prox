@@ -1,8 +1,77 @@
 #!/bin/bash 
 #
+Help () {
+	echo
+	echo "Create an nginx reverse proxy with renewable Let's Encrypt certificates."
+	echo "!!! In most cases, this will need to be run as root or via sudo !!!"
+	echo "Usage:"
+	echo "  rev-prox.sh -C <config dir>"
+	echo "  Setup an nginx reverse proxy container with the config in the provideded directory"
+	echo 
+	echo "  rev-prox.sh -i "
+	echo "  Setup an nginx reverse proxy in interactive mode"
+	echo
+	echo "  rev-prox.sh -h|--help "
+	echo "  Display this help information"
+	exit
+}
+Interactive () {
+	echo "Let's create your config for rev-prox"
+	echo "What is the fully qualified domain name of the server?"
+	read FQDN
+	echo "What is the adminstrative email address you would liek to use for the certificate?"
+	read EMAIL
+	echo "Would you like to specify a specific version of nginx container?"
+	echo "If not, we will use \"latest\""
+	read NGINX
+	if [ -z $NGINX ]; then
+		NGINX="latest"
+	fi
+	echo "Would you like to specify a specific version of the certbot container"
+	echo "If not, we will use \"latest\""
+	read CERTBOT
+	if [ -z $CERTBOT ]; then
+		CERTBOT="latest"
+	fi
+	echo "What is the IP or fully qualified domain name of the upstream server?"
+	read UPSTREAM
+	echo "What is the TCP port the upstream server is listening on?"
+	read FWD_PORT
+	echo "What TCP port do you want the proxy to listen on?"
+	read LISTEN_PORT
+	echo "Do you want to run create and start the proxy now?"
+	read GO
+	echo "Would you like to create a docker-compose fragment?"
+	read COMPFRAG
+	echo "Should I create a cron entry to renew the Let's Encrypt cert?"
+	read CRON
+	mv /etc/rev-prox.d/rev-prox.rc /etc/rev-prox.d/rev-prox.rc.orig
+	for opt in FQDN NGINX EMAIL CERTBOT UPSTREAM FWD_PORT LISTEN_PORT GO COMPFRAG CRON; do 
+		echo "$opt=\"${!opt}\"" | tee -a /etc/rev-prox.d/rev-prox.rc
+	done
+	if [ $GO != "yes" ]; then
+		exit
+	fi
+
+}
 # setup reverse proxy using nginx, certbot and containers.
 # Options:
 # -C config-dir
+case $1 in 
+	-i)
+	echo " Interactive setup "
+	Interactive
+	;;
+	-C)
+	echo " Setting config directory"
+	;;
+	-h|--help)
+	Help
+	;;
+	*)
+	;;
+esac
+
 
 if [ "$1" == "-C" ]; then
 	CONFIG="$2"
@@ -47,14 +116,14 @@ sed "s/FQDN/$FQDN/g;s/UPSTREAM/$UPSTREAM/g;s/FWD_PORT/$FWD_PORT/;s/LISTEN_PORT/$
 if ! [ -d /etc/letsencrypt ]; then
 	mkdir -p /etc/letsencrypt
 fi
-#1. start a web server for LetEncrypt registration
+#1. start a web server for Let's Encrypt registration
 docker run -d --rm \
 	--name nginx-server \
 	-v $CONFIGD/nginx-setup.conf:/etc/nginx/conf.d/default.conf \
 	-v /etc/letsencrypte:/etc/letsencrypt:ro \
 	-v /tmp/acme_challenge:/tmp/acme_challenge \
 	-p 80:80 \
-	-p 443:443 \
+	-p $LISTEN_PORT:$LISTEN_PORT \
 	nginx:$NGINX
 #2. Run the certbot to get the new cert
 echo " Sleeping 1 second to let nginx start "
@@ -73,9 +142,33 @@ docker run -d \
       -v /etc/letsencrypt:/etc/letsencrypt:ro \
       -v /tmp/acme_challenge:/tmp/acme_challenge \
       -p 80:80 \
-      -p443:443 \
+      -p 443:443 \
       nginx:$NGINX
 #5. setup renwal of cert via ???? cron?1. start a web server for LetEncrypt registration
+echo "To renew ( or just check for renewal), run:"
+echo -e "\t docker run -it --rm --name certbot-setup \
+        -v /etc/letsencrypt:/etc/letsencrypt \
+        -v /tmp/acme_challenge:/tmp/acme_challenge \
+        certbot/certbot:$CERTBOT certonly  \
+	--webroot -w /tmp/acme_challenge -d $FQDN  \
+	--text --agree-tos --email scott@immauss.com \
+	--rsa-key-size 4096 --verbose \
+	--keep-until-expiring  --preferred-challenges=http" | tee /usr/local/bin/rev-prox-cert-update.sh 
+chmod 755 /usr/local/bin/rev-prox-cert-update.sh
+echo "Or just run the script we created at:"
+echo -e "\t /usr/local/bin/rev-prox-cert-update.sh"
 
 #6. Provide startup cmnd and/or compose fragment
-
+echo "The proxy is started with the \"--rm\" option, so if you stop it, it's gone."
+echo "That's OK. "
+echo "You can restart it with:"
+echo -e "\tdocker run -d \\"
+echo -e "\t--name nginx-proxy \\"
+echo -e "\t-v $CONFIGD/nginx-rev-proxy.conf:/etc/nginx/conf.d/default.conf \\"
+echo -e "\t-v /etc/letsencrypt:/etc/letsencrypt:ro \\"
+echo -e "\t-v /tmp/acme_challenge:/tmp/acme_challenge \\"
+echo -e "\t-p 80:80 \\"
+echo -e "\t-p 443:443 \\"
+echo -e "\tnginx:$NGINX" | tee /usr/local/bin/rev-prox-start.sh 
+echo "Or just run the script we created at:"
+echo -e "\t/usr/local/bin/rev-prox-start.sh"
