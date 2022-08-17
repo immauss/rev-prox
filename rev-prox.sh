@@ -1,5 +1,7 @@
 #!/bin/bash 
 #
+# setup reverse proxy using nginx, certbot and containers.
+
 Help () {
 	echo
 	echo "Create an nginx reverse proxy with renewable Let's Encrypt certificates."
@@ -55,9 +57,15 @@ Interactive () {
 	fi
 
 }
-# setup reverse proxy using nginx, certbot and containers.
-# Options:
-# -C config-dir
+
+# 0.5 Ensure existing directories
+if ! [ -d /etc/letsencrypt ]; then
+	mkdir -p /etc/letsencrypt
+fi
+if ! [ -d /etc/rev-prox.d ]; then
+	mkdir -p /etc/rev-prox.d
+fi
+
 case $1 in 
 	-i)
 	echo " Interactive setup "
@@ -112,14 +120,6 @@ echo "Create nginx server config"
 sed "s/FQDN/$FQDN/g" $CONFIG/nginx-setup.conf.tmpl > $CONFIG/nginx-setup.conf
 echo "Create nginx reverse proxy config"
 sed "s/FQDN/$FQDN/g;s/UPSTREAM/$UPSTREAM/g;s/FWD_PORT/$FWD_PORT/;s/LISTEN_PORT/$LISTEN_PORT/g" $CONFIG/nginx-rev-proxy.conf.tmpl > $CONFIG/nginx-rev-proxy.conf 
-
-# 0.5 Ensure existing directories
-if ! [ -d /etc/letsencrypt ]; then
-	mkdir -p /etc/letsencrypt
-fi
-if ! [ -d /etc/rev-prox.d ]; then
-	mkdir -p /etc/rev-prox.d
-fi
 #1. start a web server for Let's Encrypt registration
 docker run -d --rm \
 	--name nginx-server \
