@@ -49,6 +49,7 @@ Interactive () {
 	for opt in FQDN NGINX EMAIL CERTBOT UPSTREAM FWD_PORT LISTEN_PORT GO COMPFRAG CRON; do 
 		echo "$opt=\"${!opt}\"" | tee -a /etc/rev-prox.d/rev-prox.rc
 	done
+	cp config/*tmpl /etc/rev-prox.d/
 	if [ $GO != "yes" ]; then
 		exit
 	fi
@@ -146,14 +147,14 @@ docker run -d \
       nginx:$NGINX
 #5. setup renwal of cert via ???? cron?1. start a web server for LetEncrypt registration
 echo "To renew ( or just check for renewal), run:"
-echo -e "\t docker run -it --rm --name certbot-setup \
-        -v /etc/letsencrypt:/etc/letsencrypt \
-        -v /tmp/acme_challenge:/tmp/acme_challenge \
-        certbot/certbot:$CERTBOT certonly  \
-	--webroot -w /tmp/acme_challenge -d $FQDN  \
-	--text --agree-tos --email scott@immauss.com \
-	--rsa-key-size 4096 --verbose \
-	--keep-until-expiring  --preferred-challenges=http" | tee /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t docker run -it --rm --name certbot-setup \\"  > /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t-v /etc/letsencrypt:/etc/letsencrypt \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t-v /tmp/acme_challenge:/tmp/acme_challenge \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\tcertbot/certbot:$CERTBOT certonly  \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t--webroot -w /tmp/acme_challenge -d $FQDN  \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t--text --agree-tos --email scott@immauss.com \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t--rsa-key-size 4096 --verbose \\" >> /usr/local/bin/rev-prox-cert-update.sh 
+echo -e "\t--keep-until-expiring  --preferred-challenges=http" >> /usr/local/bin/rev-prox-cert-update.sh 
 chmod 755 /usr/local/bin/rev-prox-cert-update.sh
 echo "Or just run the script we created at:"
 echo -e "\t /usr/local/bin/rev-prox-cert-update.sh"
@@ -161,14 +162,14 @@ echo -e "\t /usr/local/bin/rev-prox-cert-update.sh"
 #6. Provide startup cmnd and/or compose fragment
 echo "The proxy is started with the \"--rm\" option, so if you stop it, it's gone."
 echo "That's OK. "
-echo "You can restart it with:"
-echo -e "\tdocker run -d \\"
-echo -e "\t--name nginx-proxy \\"
-echo -e "\t-v $CONFIGD/nginx-rev-proxy.conf:/etc/nginx/conf.d/default.conf \\"
-echo -e "\t-v /etc/letsencrypt:/etc/letsencrypt:ro \\"
-echo -e "\t-v /tmp/acme_challenge:/tmp/acme_challenge \\"
-echo -e "\t-p 80:80 \\"
-echo -e "\t-p 443:443 \\"
-echo -e "\tnginx:$NGINX" | tee /usr/local/bin/rev-prox-start.sh 
+echo -e "\tdocker run -d \\" > /usr/local/bin/rev-prox-start.sh 
+echo -e "\t--name nginx-proxy \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\t-v $CONFIGD/nginx-rev-proxy.conf:/etc/nginx/conf.d/default.conf \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\t-v /etc/letsencrypt:/etc/letsencrypt:ro \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\t-v /tmp/acme_challenge:/tmp/acme_challenge \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\t-p 80:80 \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\t-p 443:443 \\" >> /usr/local/bin/rev-prox-start.sh 
+echo -e "\tnginx:$NGINX" >> /usr/local/bin/rev-prox-start.sh 
+chmod 755 /usr/local/bin/rev-prox-start.sh
 echo "Or just run the script we created at:"
 echo -e "\t/usr/local/bin/rev-prox-start.sh"
