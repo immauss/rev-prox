@@ -1,5 +1,15 @@
+[![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/rev-prox.svg)](https://github.com/immauss/rev-prox/issues)
+[![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
+![GitHub Repo stars](https://img.shields.io/github/stars/immauss/rev-prox?style=social)
+
 # The Goal #
-Uber simple method for creating a reverse proxy container to use in any project with Let's Encrypt certificates.
+### Uber simple method to create a reverse proxy container to use in any project with Let's Encrypt certificates. ##
+
+
+### Brought to you by ###
+[![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
+
+
 
 ## WIP ##
 
@@ -13,7 +23,7 @@ You should now have a container with nginx running as a reverse-proxy. :D
 
 Still To Do:
 
-- [ ] Run as interactive script to fill in config.
+- [x] Run as interactive script to fill in config.
 - [ ] Create docker-compose fragment 
 - [ ] Generate/add cron entry to update certificate with ACME
 - [ ] Improve this ReadMe
@@ -21,17 +31,19 @@ Still To Do:
 - [ ] ?????
 
 
-Reference:
+### Reference: ###
   https://leangaurav.medium.com/simplest-https-setup-nginx-reverse-proxy-letsencrypt-ssl-certificate-aws-cloud-docker-4b74569b3c61
+  
   https://github.com/leangaurav/nginx_https_docker
-Basic steps needed:
+  
+### Basic steps needed: ###
 1. start a web server for Let's Encrypt registration
 2. Run the certbot to get the new cert
 3. destroy webserver from 1. 
 4. Start reverse proxy with certs from 2
 5. setup renwal of cert via ???? cron? 
 
-Details.
+### Details. ###
 - Should be a script to:
   - Fill in email address and FQDN 
   - start and stop as needed
