@@ -6,4 +6,4 @@ OUTPUT="both"
 FWD_PORT="9392"
 LISTEN_PORT="443"
 # Output type (shell / compose / both )
-UPSTREAM="newames.immauss.com"
+UPSTREAM="172.17.0.3"
