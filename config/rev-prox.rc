@@ -1,5 +1,5 @@
-FQDN="newames.immauss.com"
-EMAIL="scott@immauss.com"
+FQDN="ourhost.ourdomain.com"
+EMAIL="admin@ourdomain.com"
 NGINX="latest"
 CERTBOT="latest"
 OUTPUT="both"
