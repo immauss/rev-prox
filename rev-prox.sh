@@ -84,8 +84,12 @@ esac
 
 if [ "$1" == "-C" ]; then
 	CONFIG="$2"
-else 
+elif [ -d /etc/rev-prox.d ]; then 
 	CONFIG="/etc/rev-prox.d"
+else
+	echo "no config"	
+	Help
+	exit
 fi
 if [ -d $CONFIG ]; then
 	. $CONFIG/rev-prox.rc
