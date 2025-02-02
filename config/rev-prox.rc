@@ -1,9 +1,9 @@
-FQDN="svi.immauss.com"
-EMAIL="scott@immauss.com"
+FQDN="ourhost.ourdomain.com"
+EMAIL="admin@ourdomain.com"
 NGINX="latest"
 CERTBOT="latest"
 OUTPUT="both"
 FWD_PORT="8080"
 LISTEN_PORT="443"
 # Output type (shell / compose / both )
-UPSTREAM="svi.immauss.com"
+UPSTREAM="<upstream host or IP>"

@@ -16,7 +16,9 @@
 16 Aug 2022
 - - - - 
 For now, you can get a container running with the rev-prox.sh script. You'll need to run it as root or with sudo. 
-Step 1: Check the rev-prox.rc.tmpl in ./config Modify as needed
+
+Step 1: Check the rev-prox.rc in ./config Modify as needed
+
 Step 2: sudo ./rev-prox.sh -C config 
 
 You should now have a container with nginx running as a reverse-proxy. :D
@@ -25,7 +27,7 @@ Still To Do:
 
 - [x] Run as interactive script to fill in config.
 - [ ] Create docker-compose fragment 
-- [ ] Generate/add cron entry to update certificate with ACME
+- [x] Generate/add cron entry to update certificate with ACME
 - [ ] Improve this ReadMe
 - [ ] Actual documentation
 - [ ] ?????
